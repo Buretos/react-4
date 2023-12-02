@@ -6,13 +6,15 @@ const sendData = (formData) => {
 };
 
 export const App = () => {
-	const [email, setEmail] = useState('');
-	const [login, setLogin] = useState('');
-	const [password, setPassword] = useState('');
+	const [formData, setFormData] = useState({
+		email: '',
+		login: '',
+		password: '',
+	});
 
 	const onSubmit = (event) => {
 		event.preventDefault();
-		sendData({ email, login, password });
+		sendData(formData);
 	};
 
 	return (
@@ -21,23 +23,29 @@ export const App = () => {
 				<input
 					type="email"
 					name="email"
-					value={email}
+					value={formData.email}
 					placeholder="Почта"
-					onChange={({ target }) => setEmail(target.value)}
+					onChange={({ target }) =>
+						setFormData({ ...formData, email: target.value })
+					}
 				/>
 				<input
 					type="text"
 					name="login"
-					value={login}
+					value={formData.login}
 					placeholder="Логин"
-					onChange={({ target }) => setLogin(target.value)}
+					onChange={({ target }) =>
+						setFormData({ ...formData, login: target.value })
+					}
 				/>
 				<input
 					type="password"
 					name="password"
-					value={password}
+					value={formData.password}
 					placeholder="Пароль"
-					onChange={({ target }) => setPassword(target.value)}
+					onChange={({ target }) =>
+						setFormData({ ...formData, password: target.value })
+					}
 				/>
 				<button type="submit">Отправить</button>
 			</form>
