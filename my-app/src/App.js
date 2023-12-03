@@ -1,150 +1,90 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import styles from './App.module.css';
 
 const App = () => {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [emailEmpty, setEmailEmpty] = useState(true);
-	const [passwordEmpty, setPasswordEmpty] = useState(true);
-	const [confirmPasswordEmpty, setConfirmPasswordEmpty] = useState(true);
-	const [emailError, setEmailError] = useState('Email не должен быть пустым');
-	const [passwordError, setPasswordError] = useState('Пароль не должен быть пустым');
-	const [confirmPasswordError, setConfirmPasswordError] = useState(
-		'Пароль не должен быть пустым',
-	);
-	const [confirmError, setConfirmError] = useState('');
-	const [formValid, setFormValid] = useState(false);
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+			confirmPassword: '',
+		},
+	});
 
-	const submitButtonRef = useRef(null);
-
-	const emailChange = (e) => {
-		setEmail(e.target.value);
-		const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-		if (!re.test(String(e.target.value).toLocaleLowerCase())) {
-			setEmailError('Некорректный email');
-		} else {
-			setEmailError('');
-		}
+	const emailProps = {
+		pattern: {
+			value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+			message: 'Некоректно введён email.',
+		},
 	};
 
-	const passwordChange = (e) => {
-		setPassword(e.target.value);
-		if (e.target.value.length < 6 || e.target.value.length > 20) {
-			setPasswordError('Пароль не может быть меньше 6 и больше 20 символов');
-		} else {
-			setPasswordError('');
-		}
-		if (
-			!passwordError &&
-			!confirmPasswordError &&
-			confirmPassword !== e.target.value
-		) {
-			setConfirmError('Пароли не совпадают');
-		} else {
-			setConfirmError('');
-		}
+	const passwordProps = {
+		minLength: { value: 6, message: 'Должно быть больше 6 символов' },
+		maxLength: { value: 20, message: 'Должно быть не больше 20 символов' },
 	};
 
-	const confirmPasswordChange = (e) => {
-		setConfirmPassword(e.target.value);
-		if (e.target.value.length < 6 || e.target.value.length > 20) {
-			setConfirmPasswordError('Пароль не может быть меньше 6 и больше 20 символов');
+	const confirmPasswordProps = {
+		minLength: { value: 6, message: 'Должно быть больше 6 символов' },
+		maxLength: { value: 20, message: 'Должно быть не больше 20 символов' },
+		// validate: {value: value === password.current || "Пароли не совпадают"
+	};
+
+	const emailError = errors.email?.message;
+	const passwordError = errors.password?.message;
+	const confirmPasswordError = errors.confirmPassword?.message;
+	const [confirmError, setConfitmError] = useState('');
+
+	const onSubmit = (formData) => {
+		if (formData.password === formData.confirmPassword) {
+			setConfitmError('');
+			console.log(formData);
 		} else {
-			setConfirmPasswordError('');
-		}
-		if (!passwordError && !confirmPasswordError && password !== e.target.value) {
-			setConfirmError('Пароли не совпадают');
-		} else {
-			setConfirmError('');
-			isValid();
+			setConfitmError('Пароли не совпадают');
 		}
 	};
-
-	const fieldBlur = (e) => {
-		switch (e.target.name) {
-			case 'email':
-				setEmailEmpty(false);
-				break;
-			case 'password':
-				setPasswordEmpty(false);
-				break;
-			case 'confirmPassword':
-				setConfirmPasswordEmpty(false);
-				break;
-			default:
-				break;
-		}
-	};
-
-	const sendFormData = (formData) => {
-		console.log(formData);
-	};
-
-	const onSubmit = (event) => {
-		event.preventDefault();
-		sendFormData({ email, password, confirmPassword });
-	};
-
-	function isValid() {
-		if (emailError || passwordError || confirmPasswordError || confirmError) {
-			return false;
-		} else {
-			submitButtonRef.current.focus();
-			return true;
-		}
-	}
 
 	return (
 		<div className={styles.App}>
-			<form onSubmit={onSubmit}>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<h1>Регистрация</h1>
-				{!emailEmpty && emailError && (
-					<div className={styles.error}>{emailError}</div>
-				)}
+				{emailError && <div className={styles.error}>{emailError}</div>}
 				<div className={styles.field}>
 					<input
-						onChange={(e) => emailChange(e)}
-						value={email}
-						onBlur={(e) => fieldBlur(e)}
 						name="email"
 						type="text"
 						placeholder="Введите ваш email..."
+						{...register('email', emailProps)}
 					/>
 				</div>
-				{!passwordEmpty && passwordError && (
-					<div className={styles.error}>{passwordError}</div>
-				)}
+				{passwordError && <div className={styles.error}>{passwordError}</div>}
 				<div className={styles.field}>
 					<input
-						onChange={(e) => passwordChange(e)}
-						value={password}
-						onBlur={(e) => fieldBlur(e)}
 						name="password"
 						type="password"
-						placeholder="Введите пароль..."
+						placeholder="Введите пароль"
+						{...register('password', passwordProps)}
 					/>
 				</div>
-				{!confirmPasswordEmpty && confirmPasswordError && (
+				{confirmPasswordError && (
 					<div className={styles.error}>{confirmPasswordError}</div>
 				)}
-
 				<div className={styles.field}>
 					<input
-						onChange={(e) => confirmPasswordChange(e)}
-						value={confirmPassword}
-						onBlur={(e) => fieldBlur(e)}
 						name="confirmPassword"
 						type="password"
-						placeholder="Введите пароль ещё раз..."
+						placeholder="Повторите пароль"
+						{...register('confirmPassword', confirmPasswordProps)}
 					/>
 				</div>
 				{confirmError && <div className={styles.error}>{confirmError}</div>}
 				<button
-					ref={submitButtonRef}
 					className={styles.button}
 					type="submit"
-					disabled={!isValid()}
+					disabled={!!emailError || !!passwordError}
 				>
 					Зарегистрироваться
 				</button>
