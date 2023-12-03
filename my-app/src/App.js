@@ -1,145 +1,156 @@
 import { useState, useRef } from 'react';
 import styles from './App.module.css';
 
-const initialState = {
-	email: '',
-	password1: '',
-	password2: '',
-	errorEmail: '',
-	errorPassword1: '',
-	errorPassword2: '',
-};
+const App = () => {
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
+	const [emailEmpty, setEmailEmpty] = useState(true);
+	const [passwordEmpty, setPasswordEmpty] = useState(true);
+	const [confirmPasswordEmpty, setConfirmPasswordEmpty] = useState(true);
+	const [emailError, setEmailError] = useState('Email не должен быть пустым');
+	const [passwordError, setPasswordError] = useState('Пароль не должен быть пустым');
+	const [confirmPasswordError, setConfirmPasswordError] = useState(
+		'Пароль не должен быть пустым',
+	);
+	const [confirmError, setConfirmError] = useState('');
+	const [formValid, setFormValid] = useState(false);
 
-const useStore = () => {
-	const [state, setState] = useState(initialState);
 	const submitButtonRef = useRef(null);
 
-	return {
-		getState: () => state,
-		updateState: (fieldName, newValue) => {
-			setState({ ...state, [fieldName]: newValue });
-		},
-		submitButtonRef,
-	};
-};
-
-const sendData = (formData) => {
-	console.log(formData);
-};
-
-export const App = () => {
-	const { getState, updateState, submitButtonRef } = useStore();
-
-	const validateEmail = () => {
-		const { email } = getState();
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-		if (!emailRegex.test(email)) {
-			updateState('errorEmail', 'Неверный формат адреса электронной почты');
+	const emailChange = (e) => {
+		setEmail(e.target.value);
+		const re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+		if (!re.test(String(e.target.value).toLocaleLowerCase())) {
+			setEmailError('Некорректный email');
 		} else {
-			updateState('errorEmail', '');
+			setEmailError('');
 		}
 	};
 
-	const validatePasswords = () => {
-		const { password1, password2 } = getState();
-
-		if (password1.length < 6) {
-			updateState('errorPassword1', 'Пароль должен быть не менее 6 символов');
-		} else if (password1.length > 20) {
-			updateState('errorPassword1', 'Пароль не должен превышать 20 символов');
+	const passwordChange = (e) => {
+		setPassword(e.target.value);
+		if (e.target.value.length < 6 || e.target.value.length > 20) {
+			setPasswordError('Пароль не может быть меньше 6 и больше 20 символов');
 		} else {
-			updateState('errorPassword1', '');
+			setPasswordError('');
 		}
-
-		if (password2.length < 6) {
-			updateState('errorPassword2', 'Пароль должен быть не менее 6 символов');
-		} else if (password2.length > 20) {
-			updateState('errorPassword2', 'Пароль не должен превышать 20 символов');
+		if (
+			!passwordError &&
+			!confirmPasswordError &&
+			confirmPassword !== e.target.value
+		) {
+			setConfirmError('Пароли не совпадают');
 		} else {
-			updateState('errorPassword2', '');
+			setConfirmError('');
 		}
+	};
 
-		if (password1 !== password2) {
-			updateState('errorPassword2', 'Пароли не совпадают');
+	const confirmPasswordChange = (e) => {
+		setConfirmPassword(e.target.value);
+		if (e.target.value.length < 6 || e.target.value.length > 20) {
+			setConfirmPasswordError('Пароль не может быть меньше 6 и больше 20 символов');
 		} else {
-			updateState('errorPassword2', '');
+			setConfirmPasswordError('');
 		}
+		if (!passwordError && !confirmPasswordError && password !== e.target.value) {
+			setConfirmError('Пароли не совпадают');
+		} else {
+			setConfirmError('');
+			isValid();
+		}
+	};
+
+	const fieldBlur = (e) => {
+		switch (e.target.name) {
+			case 'email':
+				setEmailEmpty(false);
+				break;
+			case 'password':
+				setPasswordEmpty(false);
+				break;
+			case 'confirmPassword':
+				setConfirmPasswordEmpty(false);
+				break;
+			default:
+				break;
+		}
+	};
+
+	const sendFormData = (formData) => {
+		console.log(formData);
 	};
 
 	const onSubmit = (event) => {
 		event.preventDefault();
-		validateEmail();
-		validatePasswords();
+		sendFormData({ email, password, confirmPassword });
+	};
 
-		const { errorEmail, errorPassword1, errorPassword2 } = getState();
-
-		if (!errorEmail && !errorPassword1 && !errorPassword2) {
-			// sendData(getState());
+	function isValid() {
+		if (emailError || passwordError || confirmPasswordError || confirmError) {
+			return false;
+		} else {
 			submitButtonRef.current.focus();
+			return true;
 		}
-	};
-
-	const { email, password1, password2, errorEmail, errorPassword1, errorPassword2 } =
-		getState();
-
-	const onChange = ({ target }) => {
-		updateState(target.name, target.value);
-	};
+	}
 
 	return (
 		<div className={styles.App}>
 			<form onSubmit={onSubmit}>
-				{errorEmail && <div className={styles.error}>{errorEmail}</div>}
-				<div>
+				<h1>Регистрация</h1>
+				{!emailEmpty && emailError && (
+					<div className={styles.error}>{emailError}</div>
+				)}
+				<div className={styles.field}>
 					<input
-						type="email"
-						name="email"
+						onChange={(e) => emailChange(e)}
 						value={email}
-						placeholder="Почта"
-						onChange={onChange}
-						onBlur={validateEmail}
+						onBlur={(e) => fieldBlur(e)}
+						name="email"
+						type="text"
+						placeholder="Введите ваш email..."
 					/>
 				</div>
-				{errorPassword1 && <div className={styles.error}>{errorPassword1}</div>}
-				<div>
+				{!passwordEmpty && passwordError && (
+					<div className={styles.error}>{passwordError}</div>
+				)}
+				<div className={styles.field}>
 					<input
+						onChange={(e) => passwordChange(e)}
+						value={password}
+						onBlur={(e) => fieldBlur(e)}
+						name="password"
 						type="password"
-						name="password1"
-						value={password1}
-						placeholder="Пароль"
-						onChange={onChange}
-						onBlur={validatePasswords}
+						placeholder="Введите пароль..."
 					/>
 				</div>
-				{errorPassword2 && <div className={styles.error}>{errorPassword2}</div>}
-				<div>
+				{!confirmPasswordEmpty && confirmPasswordError && (
+					<div className={styles.error}>{confirmPasswordError}</div>
+				)}
+
+				<div className={styles.field}>
 					<input
+						onChange={(e) => confirmPasswordChange(e)}
+						value={confirmPassword}
+						onBlur={(e) => fieldBlur(e)}
+						name="confirmPassword"
 						type="password"
-						name="password2"
-						value={password2}
-						placeholder="Повторите пароль"
-						onChange={onChange}
-						onBlur={validatePasswords}
+						placeholder="Введите пароль ещё раз..."
 					/>
 				</div>
-				<div>
-					<button
-						type="submit"
-						disabled={
-							errorEmail ||
-							errorPassword1 ||
-							errorPassword2 ||
-							!email.length ||
-							!password1.length ||
-							!password2.length
-						}
-						ref={submitButtonRef}
-					>
-						Отправить
-					</button>
-				</div>
+				{confirmError && <div className={styles.error}>{confirmError}</div>}
+				<button
+					ref={submitButtonRef}
+					className={styles.button}
+					type="submit"
+					disabled={!isValid()}
+				>
+					Зарегистрироваться
+				</button>
 			</form>
 		</div>
 	);
 };
+
+export default App;

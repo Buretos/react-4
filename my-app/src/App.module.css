@@ -1,6 +1,13 @@
 .App {
   text-align: center;
-  margin-top: 30px;
+}
+
+.field {
+	margin-bottom: 10px;
+}
+
+.button {
+	margin-top: 30px;
 }
 
 .error {
