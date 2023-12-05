@@ -1,3 +1,25 @@
+Использование React
+
+1. Неправильное использование
+		Использование JS средств выбора элементов в DOOM. Например, element.querySelector...
+		Использование прослушивателей JS, таких как element.addEventListener ...
+
+2. Правильно плохо
+		Не используются element.querySelector или element.addEventListener
+		Полностью используется средства react. Используется JSX в котором на react элементы ставятся обработчики событий, ref (через хук useRef), чтобы обращаться к элементам.
+
+3. Правильно хорошо
+		Хорошие практики: разделение кода на компоненты (декомпозиция)
+		Использование хуков Реакта по назначению (useRef, useCallback, useContext, ...)
+		Правильное использование useState, useEffect
+		Структурированный и читаемый код, качественный.
+
+
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
