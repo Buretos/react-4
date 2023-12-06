@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Field } from './components';
 import {
 	emaiValidator,
@@ -12,20 +12,34 @@ const App = () => {
 	const [password, setPassword] = useState('');
 	const [passcheck, setPasscheck] = useState('');
 
-	const [isEmailValide, setIsEmailValide] = useState(false);
-	const [isPasswordValide, setIsPasswordValide] = useState(false);
-	const [isPasscheckValide, setIsPasscheckValide] = useState(false);
+	const [isEmailValid, setIsEmailValid] = useState(false);
+	const [isPasswordValid, setIsPasswordValid] = useState(false);
+	const [isPasscheckValid, setIsPasscheckValid] = useState(false);
 
-	const isFormValide = isEmailValide && isPasswordValide && isPasscheckValide;
+	const submitButtonRef = useRef(null);
+
+	const isFormValid = isEmailValid && isPasswordValid && isPasscheckValid;
+
+	const onSubmit = (event) => {
+		event.preventDefault();
+		console.log({ email, password });
+	};
+
+	useEffect(() => {
+		if (isFormValid) {
+			submitButtonRef.current.focus();
+		}
+	}, [isFormValid]);
 
 	return (
 		<div className={styles.App}>
-			<form>
+			<form onSubmit={onSubmit}>
 				<Field
 					type="text"
 					name="email"
 					placeholder="Почта..."
 					value={email}
+					setIsValid={setIsEmailValid}
 					setValue={setEmail}
 					validators={[emaiValidator]}
 				/>
@@ -35,6 +49,7 @@ const App = () => {
 					placeholder="Пароль..."
 					value={password}
 					setValue={setPassword}
+					setIsValid={setIsPasswordValid}
 					validators={[passwordMinValidator, passwordSymbolsValidator]}
 				/>
 				<Field
@@ -43,13 +58,15 @@ const App = () => {
 					placeholder="Повтор пароля..."
 					value={passcheck}
 					setValue={setPasscheck}
+					setIsValid={setIsPasscheckValid}
 					validators={[
 						(value) => (value === password ? null : 'Пароли не совпадают'),
 					]}
-					dependencies={['password']}
+					dependencies={{ password }}
+					focreValidation={(value) => value.length > 0}
 				/>
-				<button type="submit" disabled={!isFormValide}>
-					Зарегистрировать
+				<button type="submit" disabled={!isFormValid} ref={submitButtonRef}>
+					Зарегистрироваться
 				</button>
 			</form>
 		</div>
