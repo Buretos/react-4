@@ -4,6 +4,10 @@ import styles from './app.module.css';
 export const App = () => {
 	const [products, setProducts] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isCreating, setIsCreating] = useState(false);
+	const [refreshProductsFlag, setRefreshProductsFlag] = useState(false);
+
+	const refreshProducts = () => setRefreshProductsFlag(!refreshProductsFlag);
 
 	useEffect(() => {
 		setIsLoading(true);
@@ -14,7 +18,25 @@ export const App = () => {
 				setProducts(loadedProducts);
 			})
 			.finally(() => setIsLoading(false));
-	}, []);
+	}, [refreshProductsFlag]);
+
+	const requestAddVacuumCleaner = () => {
+		setIsCreating(true);
+		fetch('http://localhost:3005/produckts', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json;charset=utf-8' },
+			body: JSON.stringify({
+				name: 'Новый пылесос',
+				price: 4690,
+			}),
+		})
+			.then((rawResponse) => rawResponse.json())
+			.then((response) => {
+				console.log('Пылесос добавлен, ответ сервера:', response);
+				refreshProducts();
+			})
+			.finally(() => setIsCreating(false));
+	};
 
 	return (
 		<div className={styles.app}>
@@ -27,6 +49,9 @@ export const App = () => {
 					</div>
 				))
 			)}
+			<button disabled={isCreating} onClick={requestAddVacuumCleaner}>
+				Добавить пылесос
+			</button>
 		</div>
 	);
 };
