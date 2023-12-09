@@ -1,22 +1,21 @@
 import { useState } from 'react';
+import { ref, push } from 'firebase/database';
+import { db } from '../firebase';
 
-export const useRequestAddVacuumCleaner = (refreshProducts) => {
+export const useRequestAddVacuumCleaner = () => {
 	const [isCreating, setIsCreating] = useState(false);
 
 	const requestAddVacuumCleaner = () => {
 		setIsCreating(true);
-		fetch('http://localhost:3005/produckts', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				name: 'Новый пылесос',
-				price: 4690,
-			}),
+
+		const productsDbRef = ref(db, 'products');
+
+		push(productsDbRef, {
+			name: 'Новый пылесос',
+			price: 5990,
 		})
-			.then((rawResponse) => rawResponse.json())
 			.then((response) => {
 				console.log('Пылесос добавлен, ответ сервера:', response);
-				refreshProducts();
 			})
 			.finally(() => setIsCreating(false));
 	};
