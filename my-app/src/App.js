@@ -8,17 +8,11 @@ import {
 import styles from './app.module.css';
 
 export const App = () => {
-	const [refreshProductsFlag, setRefreshProductsFlag] = useState(false);
-	const refreshProducts = () => setRefreshProductsFlag(!refreshProductsFlag);
-
 	const { isLoading, products } = useRequestGetProducts();
 
-	const { isCreating, requestAddVacuumCleaner } =
-		useRequestAddVacuumCleaner(refreshProducts);
-	const { isUpdating, requestUpdateSmartphone } =
-		useRequestUpdateSmartphone(refreshProducts);
-	const { isDeleting, requestDeleteHairDryer } =
-		useRequestDeleteHairDryer(refreshProducts);
+	const { isCreating, requestAddVacuumCleaner } = useRequestAddVacuumCleaner();
+	const { isUpdating, requestUpdateSmartphone } = useRequestUpdateSmartphone();
+	const { isDeleting, requestDeleteHairDryer } = useRequestDeleteHairDryer();
 
 	return (
 		<div className={styles.app}>

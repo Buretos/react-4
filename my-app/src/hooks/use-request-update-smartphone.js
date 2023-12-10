@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ref, set } from 'firebase/database';
+import { db } from '../firebase';
 
 export const useRequestUpdateSmartphone = (refreshProducts) => {
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -6,18 +8,14 @@ export const useRequestUpdateSmartphone = (refreshProducts) => {
 	const requestUpdateSmartphone = () => {
 		setIsUpdating(true);
 
-		fetch('http://localhost:3005/produckts/002', {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				name: 'Сматрфон',
-				price: 17900,
-			}),
+		const smartphoneDbRef = ref(db, 'products/002');
+
+		set(smartphoneDbRef, {
+			name: 'Смартфон',
+			price: 16700,
 		})
-			.then((rawResponse) => rawResponse.json())
 			.then((response) => {
 				console.log('Смартфон обновлён, ответ сервера:', response);
-				refreshProducts();
 			})
 			.finally(() => setIsUpdating(false));
 	};
